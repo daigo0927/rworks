@@ -36,8 +36,8 @@ hist(comp_stack[,score_name_child]+20, breaks=30,
      main=paste(score_name_child, 'histogram'),
      xlab=score_name_child
      )
-curve(dnorm(x, mean=mean(comp_stack[,score_name_child]), sd=sd(comp_stack[,score_name_child])),
-      add=T
+curve(dnorm(x, mean=mean(comp_stack[,score_name_child]), sd=sd(comp_stack[,score_name_child]))
+      , add=T
       )
 
 
