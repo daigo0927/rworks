@@ -69,8 +69,56 @@ plot(dpois(seq(0,40,1)
      , main=''
      , type='l')
 
+# check participation time quarter/match ------------
+t_idx <- 6
+part_time <- apply(
+  as.matrix(team_member[[t_idx]])
+  , 1
+  , function(x){
+    p_name <- x
+    score_mat <- trans_time(htoh_i[[t_idx]])
+    
+    p_idx <- p_idx_func(htoh_i[[t_idx]], p_name)
+    
+    q <- sum(na.omit(score_mat[p_idx,'MIN']))/12
+    m <- sum(na.omit(score_mat[p_idx,'MIN']))/48
+    q_m <- c(q,m)
+    names(q_m) <- c('quarter', 'match')
+    return(q_m)
+  }
+)
+part_time <- t(part_time)
+rownames(part_time) <- team_member[[t_idx]]
 
-# code for MCMC ------------------------------
+# code for MCMC -------------------------------------------------------
+t_idx <- 6
+score_list <- lapply(htoh_i_j[[t_idx]], trans_time)
+
+# sampling process list
+NBA_MCMC_res <- list()
+# parameter to be estimated
+# mu : general performance of the player
+# lambda : precision for opponent team
+# alpha_i : plus component for i-th opponent
+parameter_name <- c('mu', 'lambda', paste0('alpha_',as.character(seq(1,30))))
+sample_num <- 10000
+for(i in 1:length(parameter_name)){
+  NBA_MCMC_res[[i]] <- matrix(0, nrow=sample_num, ncol=length(team_member[[t_idx]]))
+  colnames(NBA_MCMC_res[[i]]) <- team_member[[t_idx]]
+}
+names(NBA_MCMC_res) <- parameter_name
+
+# gibbs sampling 10000 iteration
+# for each member
+apply(
+  as.matrix(team_member[[t_idx]])
+  , 1
+  , function(x){
+    for(i in 1:sample_num){
+      
+    }
+  }
+)
 
 
 
