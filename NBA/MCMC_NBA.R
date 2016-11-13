@@ -218,6 +218,8 @@ for(x in team_member[[t_idx]]){
   print(paste0(x, ' sampling completed'))
 }
 
+save(NBA_MCMC_res, file='NBA_MCMC_res.Rdata')
+
 
 # visualize MCMC result ----------------------------------------
 burn_in <- 1:1001
