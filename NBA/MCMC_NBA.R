@@ -36,6 +36,8 @@ LeBron_pts <- LeBron_score[,score_name_child]/LeBron_score[,'MIN']*12
 hist(LeBron_pts, breaks=10)
 
 # All member ---------------
+dev.off()
+quartz(width = 7, height = 5)
 score_name_child <- 'PTS'
 All_score <- trans_time(htoh_All)
 All_pts <- All_score[,score_name_child]/All_score[,'MIN']*12
@@ -48,11 +50,11 @@ hist(All_pts[-c(which(All_pts>200)
                 , which(is.na(All_pts)==T)
                 )]
      , breaks='Scott', xlim=c(0, 40)
-     , ylim=c(0,0.20)
-     , freq=F
-     , xlab=score_name_child
-     , ylab='density'
-     , main=paste('All result', score_name_child)
+     # , ylim=c(0,0.25)
+     # , freq=F
+     , xlab='1クォーターあたりの得点'
+     # , ylab='density'
+     , main=''
      )
 
 par(new=T)
@@ -64,7 +66,7 @@ plot(dpois(seq(0,40,1)
                                      )])
            )
      , xlim=c(0, 40)
-     , ylim=c(0,0.20)
+     , ylim=c(0,0.25)
      , ylab=''
      , xlab=''
      , main=''
@@ -226,19 +228,24 @@ burn_in <- 1:1001
 
 # MCMC sampling process
 dev.off()
+quartz(width=7, height=4)
 p_name <- team_member[[t_idx]][7]
 plot(
   x <- 1:sample_num+1
   , y <- NBA_MCMC_res[['mu']][x, p_name]
   , type='l'
   , xlab='sampling iteration'
-  , ylab=paste('PTS of', p_name)
-  , main='MCMC sampling process'
+  , ylab='平均的得点能力パラメータ'
+  # , ylab=paste('PTS of', p_name)
+  # , main='MCMC sampling process'
 )
 
 # pararell plot of mu : general performance
-par(mfrow=c(4,1))
-for(i in c(3,7,13,18)){
+dev.off()
+m_length <- length(team_member[[t_idx]])
+quartz(width=12, height=16)
+par(mfrow=c(ceiling(m_length/2), 2))
+for(i in 1:length(team_member[[t_idx]])){
   p_name <- team_member[[t_idx]][i]
   plot(
     density(NBA_MCMC_res[['mu']][-burn_in, p_name])
@@ -250,9 +257,12 @@ for(i in c(3,7,13,18)){
 }
 
 # pararell plot of lambda : precision for opponent team
-par(mfrow=c(4,1))
-for(i in c(1,7,13,18)){
-  p_name <- team_member[[t_idx]][i]
+m_length <- length(team_member[[t_idx]])
+dev.off()
+quartz(width=12, height=16)
+par(mfrow=c(ceiling(m_length/2), 2))
+for(i in team_member[[t_idx]]){
+  p_name <- i
   plot(
     density(1/NBA_MCMC_res[['lambda']][-burn_in,p_name])
     , xlab='variance'
@@ -263,21 +273,44 @@ for(i in c(1,7,13,18)){
 }
 
 # pararell plot of alpha : compatibility for each team
-par(mfrow=c(4,1))
-# p_name <- 'LeBron James'
+m_length <- length(team_member[[t_idx]])
+dev.off()
+quartz(width=16, height=20)
+par(mfrow=c(8,4))
+p_name <- 'LeBron James'
 # p_name <- team_member[[t_idx]][18]
-p_name <- 'Cleveland Cavaliers'
-for(i in c(1, 10, 20, 30)){
+# p_name <- 'Cleveland Cavaliers'
+# p_name <- 'Jared Cunningham'
+for(i in 1:30){
   param <- paste0('alpha_' ,as.character(i))
   plot(
     density(NBA_MCMC_res[[param]][-burn_in, p_name])
     , xlab = 'compatibility'
     , main = paste0(p_name, ' compatibility for ',as.character(team_name[i]))
-    , xlim = c(-2,2)
+    , xlim = c(-5,5)
     # , xlim = c(-3,3)
   )
   rug(NBA_MCMC_res[[param]][-burn_in, p_name])
 }
+
+# pararell plot of mu+alpha : practical PTS for GWS
+dev.off()
+m_length <- length(team_member[[t_idx]])
+o_idx <- '10' # GSW
+alpha_idx <- paste0('alpha_', o_idx)
+quartz(width=12, height=16)
+par(mfrow=c(ceiling(m_length/2), 2))
+for(i in team_member[[t_idx]]){
+  mu_ij <- NBA_MCMC_res[['mu']][-burn_in, i]+NBA_MCMC_res[[alpha_idx]][-burn_in, i]
+  plot(
+    density(mu_ij)
+    , xlab = 'PTS for GSW'
+    , main = paste0(i, ' PTS expectation for GSW')
+    , xlim = c(0, 10)
+  )
+  rug(mu_ij)
+}
+
 
 
 
