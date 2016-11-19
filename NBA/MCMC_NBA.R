@@ -250,8 +250,9 @@ for(i in 1:length(team_member[[t_idx]])){
   plot(
     density(NBA_MCMC_res[['mu']][-burn_in, p_name])
     , xlab='mu'
-    , main=paste('general performance of', p_name)
+    , main=paste0('平均的得点能力：',p_name)
     , xlim=c(0,10)
+    # , ylim=c(0,1.0)
   )
   rug(NBA_MCMC_res[['mu']][-burn_in, p_name])
 }
@@ -265,8 +266,10 @@ for(i in team_member[[t_idx]]){
   p_name <- i
   plot(
     density(1/NBA_MCMC_res[['lambda']][-burn_in,p_name])
+    # , xlab='precision'
     , xlab='variance'
-    , main = paste('variance for opponents of', p_name)
+    # , main = paste0('相性の分散の逆数（精度）：',p_name)
+    , main = paste0('相性の分散：', p_name)
     , xlim=c(0,10)
     )
   rug(1/NBA_MCMC_res[['lambda']][-burn_in, p_name])
@@ -276,17 +279,18 @@ for(i in team_member[[t_idx]]){
 m_length <- length(team_member[[t_idx]])
 dev.off()
 quartz(width=16, height=20)
-par(mfrow=c(8,4))
+par(mfrow=c(10,3))
 p_name <- 'LeBron James'
 # p_name <- team_member[[t_idx]][18]
 # p_name <- 'Cleveland Cavaliers'
 # p_name <- 'Jared Cunningham'
 for(i in 1:30){
+  if(i == t_idx){next}
   param <- paste0('alpha_' ,as.character(i))
   plot(
     density(NBA_MCMC_res[[param]][-burn_in, p_name])
-    , xlab = 'compatibility'
-    , main = paste0(p_name, ' compatibility for ',as.character(team_name[i]))
+    , xlab = '相性'
+    , main = paste0('相性：', p_name, ' for ',as.character(team_name[i]))
     , xlim = c(-5,5)
     # , xlim = c(-3,3)
   )
@@ -299,13 +303,21 @@ m_length <- length(team_member[[t_idx]])
 o_idx <- '10' # GSW
 alpha_idx <- paste0('alpha_', o_idx)
 quartz(width=12, height=16)
-par(mfrow=c(ceiling(m_length/2), 2))
+# par(mfrow=c(ceiling(m_length/2), 2))
+# par(mfrow=c(floor(m_length/2), 2))
+par(mfrow=c(7,2))
 for(i in team_member[[t_idx]]){
+  if(i == as.character(team_name[t_idx])){next}
+  if(i == 'Anderson Varejao'){next}
+  if(i == 'Jared Cunningham'){next}
+  if(i == 'Joe Harris'){next}
+  if(i == 'Sasha Kaun'){next}
+  if(i == 'Jordan McRae'){next}
   mu_ij <- NBA_MCMC_res[['mu']][-burn_in, i]+NBA_MCMC_res[[alpha_idx]][-burn_in, i]
   plot(
     density(mu_ij)
     , xlab = 'PTS for GSW'
-    , main = paste0(i, ' PTS expectation for GSW')
+    , main = paste0('得点：', i, ' for GSW')
     , xlim = c(0, 10)
   )
   rug(mu_ij)
