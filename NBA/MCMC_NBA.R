@@ -229,7 +229,7 @@ burn_in <- 1:1001
 # MCMC sampling process
 dev.off()
 quartz(width=7, height=4)
-p_name <- team_member[[t_idx]][7]
+p_name <- 'LeBron James'
 plot(
   x <- 1:sample_num+1
   , y <- NBA_MCMC_res[['mu']][x, p_name]
@@ -240,7 +240,8 @@ plot(
   # , main='MCMC sampling process'
 )
 
-# pararell plot of mu : general performance
+# pararell plot of mu : general performance ----------------
+# for paper
 dev.off()
 m_length <- length(team_member[[t_idx]])
 quartz(width=12, height=16)
@@ -257,7 +258,24 @@ for(i in 1:length(team_member[[t_idx]])){
   rug(NBA_MCMC_res[['mu']][-burn_in, p_name])
 }
 
-# pararell plot of lambda : precision for opponent team
+# for presentation
+dev.off()
+quartz(width=8, height=4)
+par(mfrow=c(2, 2))
+for(i in c(3,7,13,18)){
+  p_name <- team_member[[t_idx]][i]
+  plot(
+    density(NBA_MCMC_res[['mu']][-burn_in, p_name])
+    , xlab='mu'
+    , main=paste0('平均的得点能力：',p_name)
+    , xlim=c(0,10)
+    # , ylim=c(0,1.0)
+  )
+  rug(NBA_MCMC_res[['mu']][-burn_in, p_name])
+}
+
+# pararell plot of lambda : precision for opponent team ---------------
+# for paper
 m_length <- length(team_member[[t_idx]])
 dev.off()
 quartz(width=12, height=16)
@@ -274,8 +292,25 @@ for(i in team_member[[t_idx]]){
     )
   rug(1/NBA_MCMC_res[['lambda']][-burn_in, p_name])
 }
+# for presentation
+dev.off()
+quartz(width=8, height=4)
+par(mfrow=c(2, 2))
+for(i in c(3,7,13,18)){
+  p_name <- team_member[[t_idx]][i]
+  plot(
+    density(1/NBA_MCMC_res[['lambda']][-burn_in,p_name])
+    # , xlab='precision'
+    , xlab='variance'
+    # , main = paste0('相性の分散の逆数（精度）：',p_name)
+    , main = paste0('相性の分散：', p_name)
+    , xlim=c(0,10)
+  )
+  rug(1/NBA_MCMC_res[['lambda']][-burn_in, p_name])
+}
 
-# pararell plot of alpha : compatibility for each team
+# pararell plot of alpha : compatibility for each team ------------------
+# for paper
 m_length <- length(team_member[[t_idx]])
 dev.off()
 quartz(width=16, height=20)
@@ -296,8 +331,29 @@ for(i in 1:30){
   )
   rug(NBA_MCMC_res[[param]][-burn_in, p_name])
 }
+# for presentation
+dev.off()
+quartz(width=8, height=4)
+par(mfrow=c(2,2))
+p_name <- 'LeBron James'
+# p_name <- team_member[[t_idx]][18]
+# p_name <- 'Cleveland Cavaliers'
+# p_name <- 'Jared Cunningham'
+for(i in c(1,10,11,16)){
+  if(i == t_idx){next}
+  param <- paste0('alpha_' ,as.character(i))
+  plot(
+    density(NBA_MCMC_res[[param]][-burn_in, p_name])
+    , xlab = '相性'
+    , main = paste0('相性：for ',as.character(team_name[i]))
+    , xlim = c(-5,5)
+    # , xlim = c(-3,3)
+  )
+  rug(NBA_MCMC_res[[param]][-burn_in, p_name])
+}
 
-# pararell plot of mu+alpha : practical PTS for GWS
+# pararell plot of mu+alpha : practical PTS for GWS --------------------
+# for paper
 dev.off()
 m_length <- length(team_member[[t_idx]])
 o_idx <- '10' # GSW
@@ -321,13 +377,42 @@ for(i in team_member[[t_idx]]){
     , xlim = c(0, 10)
   )
   rug(mu_ij)
+  # print(paste(i, mean(mu_ij)))
 }
-
-
-
-
-
-
+m_j <- apply(
+  as.matrix(team_member[[t_idx]])
+  , 1
+  , function(x){
+    return(mean(NBA_MCMC_res[['mu']][-burn_in, x]+NBA_MCMC_res[[alpha_idx]][-burn_in, x]))
+  }
+)
+names(m_j) <- team_member[[t_idx]]
+except_member <- c('Cleveland Cavaliers', 'Anderson Varejao', 'Jared Cunningham'
+                   , 'Joe Harris', 'Sasha Kaun', 'Jordan McRae')
+# for presentation
+dev.off()
+o_idx <- '10' # GSW
+alpha_idx <- paste0('alpha_', o_idx)
+quartz(width=16, height=8)
+# par(mfrow=c(ceiling(m_length/2), 2))
+# par(mfrow=c(floor(m_length/2), 2))
+par(mfrow=c(3,5))
+for(i in team_member[[t_idx]]){
+  if(i == as.character(team_name[t_idx])){next}
+  if(i == 'Anderson Varejao'){next}
+  if(i == 'Jared Cunningham'){next}
+  if(i == 'Joe Harris'){next}
+  if(i == 'Sasha Kaun'){next}
+  if(i == 'Jordan McRae'){next}
+  mu_ij <- NBA_MCMC_res[['mu']][-burn_in, i]+NBA_MCMC_res[[alpha_idx]][-burn_in, i]
+  plot(
+    density(mu_ij)
+    , xlab = 'PTS for GSW'
+    , main = paste0('得点：', i, ' for GSW')
+    , xlim = c(0, 10)
+  )
+  rug(mu_ij)
+}
 
 
 
