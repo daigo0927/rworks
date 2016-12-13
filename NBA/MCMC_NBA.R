@@ -18,22 +18,26 @@ p_idx_func <- function(x,y){
 }
 
 # team_name[6]:Cleveland Cavaliers
-t_name <- as.character(team_name[6])
-# LeBron James
-p_name <- team_member[[t_name]][7]
-
-dcpois <- function(x, lambda){
-  return(exp(-lambda)^x/gamma(x+1))
+t_name <- as.character(team_name[1])
+graphics.off()
+for(p_name in team_member[[t_name]]){
+  # player name
+  # p_name <- team_member[[t_name]][7]
+  # draw histogram -------------------------------------------------
+  # a player ------------
+  score_name_child  <- 'PTS'
+  player_idx <- p_idx_func(htoh_i[[t_name]], p_name)
+  player_score <- htoh_i[[t_name]][player_idx,]
+  player_score <- trans_time(player_score)
+  player_pts <- player_score[,score_name_child]/player_score[,'MIN']*12
+  # dev.off()
+  quartz(width=7, height=4)
+  hist(player_pts, breaks=10, main=paste('1クォーターあたりの得点ヒストグラム')
+       , xlim=c(0, 15), col='#0000FF40', ylim=c(0,0.25), freq=F, xlab=paste(p_name, 'points'), ylab='density')
+  par(new=T)
+  plot(dpois(seq(0,15, 1), lambda=mean(na.omit(player_pts))), type='b', lwd='2'
+       , xlab='', xlim=c(0,15), ylim=c(0, 0.25), ylab='')
 }
-
-# draw histogram -------------------------------------------------
-# LeBron James ------------
-score_name_child  <- 'PTS'
-LeBron_idx <- p_idx_func(htoh_i[[t_name]], p_name)
-LeBron_score <- htoh_i[[t_name]][LeBron_idx,]
-LeBron_score <- trans_time(LeBron_score)
-LeBron_pts <- LeBron_score[,score_name_child]/LeBron_score[,'MIN']*12
-hist(LeBron_pts, breaks=10)
 
 # All member ---------------
 dev.off()
@@ -57,6 +61,10 @@ hist(All_pts[-c(which(All_pts>200)
      , main=''
      )
 
+hist(
+  
+)
+
 par(new=T)
 plot(dpois(seq(0,40,1)
            # , lambda=mean(All_pts[-except_idx])
@@ -73,25 +81,28 @@ plot(dpois(seq(0,40,1)
      , type='l')
 
 # check participation time quarter/match ------------
-t_idx <- 6
-part_time <- apply(
-  as.matrix(team_member[[t_idx]])
-  , 1
-  , function(x){
-    p_name <- x
-    score_mat <- trans_time(htoh_i[[t_idx]])
-    
-    p_idx <- p_idx_func(htoh_i[[t_idx]], p_name)
-    
-    q <- sum(na.omit(score_mat[p_idx,'MIN']))/12
-    m <- sum(na.omit(score_mat[p_idx,'MIN']))/48
-    q_m <- c(q,m)
-    names(q_m) <- c('quarter', 'match')
-    return(q_m)
-  }
-)
-part_time <- t(part_time)
-rownames(part_time) <- team_member[[t_idx]]
+part_time <- list()
+for(i in 1:30){
+  t_idx <- i
+  part_time[[i]] <- apply(
+    as.matrix(team_member[[t_idx]])
+    , 1
+    , function(x){
+      p_name <- x
+      score_mat <- trans_time(htoh_i[[t_idx]])
+      
+      p_idx <- p_idx_func(htoh_i[[t_idx]], p_name)
+      
+      q <- sum(na.omit(score_mat[p_idx,'MIN']))/12
+      m <- sum(na.omit(score_mat[p_idx,'MIN']))/48
+      q_m <- c(q,m)
+      names(q_m) <- c('quarter', 'match')
+      return(q_m)
+    }
+  )
+  part_time[[i]] <- t(part_time[[i]])
+  rownames(part_time[[i]]) <- team_member[[t_idx]]
+}
 
 
 # confirm distribution shape ---------------------------------
@@ -101,6 +112,8 @@ plot(x <- seq(0, 20, 0.01)
      , xlim=c(min(x),max(x))
      , type='l'
 )
+
+
 
 
 # code for MCMC -------------------------------------------------------
