@@ -34,9 +34,19 @@ for(p_name in team_member[[t_name]]){
   quartz(width=7, height=4)
   hist(player_pts, breaks=10, main=paste('1クォーターあたりの得点ヒストグラム')
        , xlim=c(0, 15), col='#0000FF40', ylim=c(0,0.25), freq=F, xlab=paste(p_name, 'points'), ylab='density')
-  par(new=T)
-  plot(dpois(seq(0,15, 1), lambda=mean(na.omit(player_pts))), type='b', lwd='2'
-       , xlab='', xlim=c(0,15), ylim=c(0, 0.25), ylab='')
+  # par(new=T)
+  # plot(dpois(seq(0,15, 1), lambda=mean(na.omit(player_pts))), type='b', lwd='2'
+  #      , xlab='', xlim=c(0,15), ylim=c(0, 0.25), ylab='')
+}
+
+# introduce tiredness ----------------------------
+t_name <- as.character(team_name[1])
+graphics.off()
+for(p_name in team_member[[t_name]]){
+  player_idx <- p_idx_func(htoh_i[[t_name]], p_name)
+  player_score <- htoh_i[[t_name]][player_idx,]
+  player_score <- trans_time(player_score)
+  
 }
 
 # All member ---------------
@@ -426,7 +436,6 @@ for(i in team_member[[t_idx]]){
   )
   rug(mu_ij)
 }
-
 
 
 
