@@ -39,15 +39,34 @@ for(p_name in team_member[[t_name]]){
   #      , xlab='', xlim=c(0,15), ylim=c(0, 0.25), ylab='')
 }
 
-# introduce tiredness ----------------------------
-t_name <- as.character(team_name[1])
 graphics.off()
-for(p_name in team_member[[t_name]]){
-  player_idx <- p_idx_func(htoh_i[[t_name]], p_name)
-  player_score <- htoh_i[[t_name]][player_idx,]
+quartz(width=8, height=5)
+par(mfrow=c(2, 2))
+# p_names <- c('Tristan Thompson', 'Stephen Curry', 'Paul Millsap', 'Julius Randle')
+p_names <- c('Draymond Green', 'Kyrie Irving', 'Tony Parker', 'Chris Paul')
+for(p_name in p_names){
+  score_name_child <- 'PTS'
+  player_idx <- p_idx_func(htoh_All, p_name)
+  player_score <- htoh_All[player_idx, ]
   player_score <- trans_time(player_score)
+  player_pts <- player_score[,score_name_child]/player_score[,'MIN']*12
   
+  hist(player_pts, breaks=10, main=paste('')
+       , xlim=c(0,15), col='#0000FF40', ylim=c(0, 0.25), freq=F, xlab=paste(p_name, 'points'), ylab='density')
+  par(new=T)
+  plot(dpois(seq(0, 15, 1), lambda=mean(na.omit(player_pts))), type='b', lwd='1'
+       , xlab='', xlim=c(0,15), ylim=c(0, 0.25), ylab='')
 }
+
+# # introduce tiredness ----------------------------
+# t_name <- as.character(team_name[1])
+# graphics.off()
+# for(p_name in team_member[[t_name]]){
+#   player_idx <- p_idx_func(htoh_i[[t_name]], p_name)
+#   player_score <- htoh_i[[t_name]][player_idx,]
+#   player_score <- trans_time(player_score)
+#   
+# }
 
 # All member ---------------
 dev.off()
@@ -283,7 +302,7 @@ for(i in 1:length(team_member[[t_idx]])){
 
 # for presentation
 dev.off()
-quartz(width=8, height=4)
+quartz(width=8, height=5)
 par(mfrow=c(2, 2))
 for(i in c(3,7,13,18)){
   p_name <- team_member[[t_idx]][i]
@@ -293,6 +312,7 @@ for(i in c(3,7,13,18)){
     , main=paste0('平均的得点能力：',p_name)
     , xlim=c(0,10)
     # , ylim=c(0,1.0)
+    , ylim=c(0, 1.0)
   )
   rug(NBA_MCMC_res[['mu']][-burn_in, p_name])
 }
@@ -381,11 +401,13 @@ dev.off()
 m_length <- length(team_member[[t_idx]])
 o_idx <- '10' # GSW
 alpha_idx <- paste0('alpha_', o_idx)
-quartz(width=12, height=16)
+quartz(width=12, height=7)
 # par(mfrow=c(ceiling(m_length/2), 2))
 # par(mfrow=c(floor(m_length/2), 2))
-par(mfrow=c(7,2))
-for(i in team_member[[t_idx]]){
+# par(mfrow=c(7,2))
+par(mfrow=c(2,2))
+p_names <- c('James Jones', 'LeBron James', 'Timofey Mozgov', 'Kyrie Irving')
+for(i in p_names){# team_member[[t_idx]]){
   if(i == as.character(team_name[t_idx])){next}
   if(i == 'Anderson Varejao'){next}
   if(i == 'Jared Cunningham'){next}
@@ -398,6 +420,7 @@ for(i in team_member[[t_idx]]){
     , xlab = 'PTS for GSW'
     , main = paste0('得点：', i, ' for GSW')
     , xlim = c(0, 10)
+    , ylim = c(0, 0.8)
   )
   rug(mu_ij)
   # print(paste(i, mean(mu_ij)))
